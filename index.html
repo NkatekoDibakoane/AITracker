@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10-Week AI Resolution Tracker</title>
+  <style>
+    :root {
+      --bg-start: #0f172a;
+      --bg-end: #1e293b;
+      --card: rgba(255, 255, 255, 0.1);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --text: #f8fafc;
+      --muted: #cbd5f5;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(circle at top, #334155 0%, #0f172a 60%),
+        linear-gradient(135deg, var(--bg-start), var(--bg-end));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+    }
+
+    header p {
+      color: var(--muted);
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    .progress-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .progress-header span {
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #86efac);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      display: grid;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, border 0.3s ease, background 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .card.complete {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .title-group h2 {
+      font-size: 1.2rem;
+    }
+
+    .title-group p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .check-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .check-wrapper input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--success);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .check-wrapper input:checked {
+      transform: scale(1.1);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .status .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(148, 163, 184, 0.6);
+    }
+
+    .card.complete .status {
+      color: #bbf7d0;
+    }
+
+    .card.complete .status .dot {
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--text);
+      resize: vertical;
+      font-family: inherit;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    .timestamp {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 720px) {
+      .card {
+        padding: 18px;
+      }
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      header {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>10-Week AI Resolution Tracker</h1>
+        <p>
+          Stay focused on your weekend AI builds. Check off each milestone, capture what you learned,
+          and watch your progress climb toward a ten-week victory lap.
+        </p>
+      </div>
+      <div class="progress-card">
+        <div class="progress-header">
+          <strong>Overall Progress</strong>
+          <span id="progress-text">0/10 completed</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="cards" id="cards"></section>
+  </div>
+
+  <script>
+    const projects = [
+      {
+        title: "Weekend 1: Build a Resolution Tracker",
+        description: "Kick off with a vibe-coded tracker using Replit or Lovable. Focus on shipping a playful, usable MVP.",
+      },
+      {
+        title: "Weekend 2: Model Mapping",
+        description: "Experiment with multiple AI models and map which ones shine for summarization, coding, or ideation.",
+      },
+      {
+        title: "Weekend 3: Deep Research Sprint",
+        description: "Use research tools to make a real decision. Compare sources, synthesize findings, and document the outcome.",
+      },
+      {
+        title: "Weekend 4: Data Analysis Project",
+        description: "Analyze a real dataset for insights. Build charts, track trends, and tell a clear story with your findings.",
+      },
+      {
+        title: "Weekend 5: Visual Reasoning",
+        description: "Create an infographic or visual explainer for a complex concept. Aim for clarity and quick comprehension.",
+      },
+      {
+        title: "Weekend 6: Information Pipeline",
+        description: "Turn messy inputs into polished outputs. Automate a workflow that cleans, summarizes, and formats info.",
+      },
+      {
+        title: "Weekend 7: Content Distribution Automation",
+        description: "Automate social media drafts and scheduling. Build a system that keeps your content engine humming.",
+      },
+      {
+        title: "Weekend 8: Productivity Automation",
+        description: "Create an email or lead follow-up system that saves time. Use AI to handle the repetitive parts.",
+      },
+      {
+        title: "Weekend 9: Personal AI Operating System",
+        description: "Craft a professional context document or AI OS guide that captures your expertise and workflows.",
+      },
+      {
+        title: "Weekend 10: Build an AI-Powered App",
+        description: "Ship a voice agent or custom chatbot. Bring everything together into a polished demo experience.",
+      },
+    ];
+
+    const storageKey = "ai-resolution-tracker";
+
+    const defaultState = projects.map((project, index) => ({
+      id: index,
+      ...project,
+      completed: false,
+      notes: "",
+      completedAt: null,
+    }));
+
+    const loadState = () => {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return defaultState;
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map((item, index) => ({
+          ...defaultState[index],
+          ...item,
+        }));
+      } catch (error) {
+        console.error("Failed to parse saved data", error);
+        return defaultState;
+      }
+    };
+
+    const saveState = (state) => {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    };
+
+    const state = loadState();
+
+    const cardsContainer = document.getElementById("cards");
+    const progressFill = document.getElementById("progress-fill");
+    const progressText = document.getElementById("progress-text");
+
+    const formatTimestamp = (value) => {
+      if (!value) return "Not completed yet";
+      const date = new Date(value);
+      return `Completed ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    };
+
+    const updateProgress = () => {
+      const completedCount = state.filter((item) => item.completed).length;
+      const percent = Math.round((completedCount / state.length) * 100);
+      progressFill.style.width = `${percent}%`;
+      progressText.textContent = `${completedCount}/${state.length} completed · ${percent}%`;
+    };
+
+    const renderCards = () => {
+      cardsContainer.innerHTML = "";
+      state.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = `card${item.completed ? " complete" : ""}`;
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="title-group">
+              <h2>${item.title}</h2>
+              <p>${item.description}</p>
+            </div>
+            <label class="check-wrapper">
+              <input type="checkbox" ${item.completed ? "checked" : ""} />
+              <span>${item.completed ? "Done" : "Mark complete"}</span>
+            </label>
+          </div>
+          <div class="status">
+            <span class="dot"></span>
+            <span>${formatTimestamp(item.completedAt)}</span>
+          </div>
+          <textarea placeholder="Notes, links, learnings, what you built...">${item.notes}</textarea>
+        `;
+
+        const checkbox = card.querySelector("input");
+        const textarea = card.querySelector("textarea");
+        const statusText = card.querySelector(".status span:last-child");
+        const labelText = card.querySelector(".check-wrapper span");
+
+        checkbox.addEventListener("change", () => {
+          item.completed = checkbox.checked;
+          item.completedAt = item.completed ? new Date().toISOString() : null;
+          labelText.textContent = item.completed ? "Done" : "Mark complete";
+          statusText.textContent = formatTimestamp(item.completedAt);
+          card.classList.toggle("complete", item.completed);
+          saveState(state);
+          updateProgress();
+        });
+
+        textarea.addEventListener("input", () => {
+          item.notes = textarea.value;
+          saveState(state);
+        });
+
+        cardsContainer.appendChild(card);
+      });
+
+      updateProgress();
+    };
+
+    renderCards();
+  </script>
+</body>
+</html>
